@@ -14,7 +14,6 @@ import java.net.Socket;
 public interface ServerInterface {
     void stopServer();
     
-    
-    
+        
     
 }
