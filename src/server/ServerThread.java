@@ -7,7 +7,7 @@ package server;
 
 /**
  *
- * @author simon
+ * @author Simon, Afrooz and Ib
  */
 public class ServerThread extends Thread {
     public void run() {
