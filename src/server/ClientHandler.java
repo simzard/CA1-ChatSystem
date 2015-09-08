@@ -20,6 +20,10 @@ public class ClientHandler {
     private Socket socket;
     private PrintWriter out;
     
+    public Socket getSocket() {
+        return socket;
+    }
+    
     public void setUserName(String userName) {
         this.userName = userName;
     }

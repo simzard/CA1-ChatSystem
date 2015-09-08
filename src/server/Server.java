@@ -19,15 +19,20 @@ public class Server implements ServerInterface {
     List<ClientHandler> clients = new ArrayList();
     
     private void removeClient(Socket s) {
-        
+        for (ClientHandler ch : clients) {
+            if (ch.getSocket() == s) {
+                // we have found the correct client associated with this socket
+                clients.remove(ch);
+                break;
+            }
+        }
     }
     
     private void addClient(ClientHandler ch) {
-        
+        clients.add(ch);
     }
     
-    
-    
+       
     @Override
     public void stopServer() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

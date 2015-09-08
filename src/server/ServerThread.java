@@ -5,6 +5,8 @@
  */
 package server;
 
+import java.net.Socket;
+
 /**
  *
  * @author Simon, Afrooz and Ib
@@ -12,5 +14,10 @@ package server;
 public class ServerThread extends Thread {
     public void run() {
     }
+    
+    private void handleClient() {
+        
+    }
+    
     
 }
