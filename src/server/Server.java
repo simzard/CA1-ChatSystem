@@ -12,6 +12,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -19,11 +23,16 @@ import java.util.List;
  */
 public class Server implements ServerInterface {
 
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
     
     private static boolean running = true;
     
     Socket socket;
 
+    public static Logger getLogger() {
+        return logger;
+    }
+    
     public static boolean isRunning() {
         return running;
     }
@@ -36,6 +45,7 @@ public class Server implements ServerInterface {
 
     @Override
     public void stopServer() {
+        logger.info("Stopping server...");
         running = false;
     }
 
@@ -43,6 +53,11 @@ public class Server implements ServerInterface {
 
     public static void main(String[] args) throws IOException {
 
+        Handler fh = new FileHandler("chatlog.txt", false);  // overwrite
+        fh.setFormatter(new SimpleFormatter());
+        logger.addHandler(fh);
+        
+        
         String ip = "localhost";
         int port = 9090;
 
@@ -57,10 +72,14 @@ public class Server implements ServerInterface {
 
         serverSocket.bind(new InetSocketAddress(ip, port));
 
+        logger.info("Server started at ip:" + ip + " listening at port " + port);
+        
         while (Server.isRunning()) {
 
             ServerThread serverObject = new ServerThread(serverSocket.accept());
 
+            logger.info("New client connected");
+            
             Thread serverThread = new Thread(serverObject);
             
             serverThread.start();

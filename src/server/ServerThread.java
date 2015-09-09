@@ -60,6 +60,7 @@ public class ServerThread implements Runnable {
     }
 
     private void close() throws IOException {
+        Server.getLogger().info("Closing client socket connection...");
         socket.close();
         removeClient(socket);
         String serverResponse = "USERLIST#";
@@ -98,6 +99,7 @@ public class ServerThread implements Runnable {
             String userName = msg[1];
             ClientHandler ch = new ClientHandler(socket, userName);
             if (addClient(ch)) {
+                Server.getLogger().info(ch.getUserName() + " entered the chat");
                 serverResponse = "USERLIST#";
                 for (ClientHandler cs : ClientHandler.getClients()) {
                     serverResponse += cs.getUserName() + ",";
@@ -115,6 +117,7 @@ public class ServerThread implements Runnable {
                         }
 
                     }
+                    Server.getLogger().info(ch.getUserName() + " left the chat");
                     close();
                 } catch (IOException ex) {
                     Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
@@ -124,6 +127,7 @@ public class ServerThread implements Runnable {
 
         } else {
             try {
+                Server.getLogger().info("invalid syntax received from client");
                 close();
 
             } catch (IOException ex) {
