@@ -151,15 +151,13 @@ public class ServerThread implements Runnable {
     }
 
     private void processInput(String message) { //ikke færdig endnu! 
-        String s = null;
-
         String[] parts = message.split("#");
 
         switch (parts[0]) {
             case "MSG":
                 String users[] = parts[1].split(",");
 
-                s = "MSG#";
+                
 
                 String sender = null;
                 for (ClientHandler ch : ClientHandler.getClients()) {
