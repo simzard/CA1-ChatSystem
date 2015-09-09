@@ -40,20 +40,20 @@ public class ServerThread implements Runnable {
 
     private boolean addClient(ClientHandler ch) {
 
-        for (ClientHandler c : ClientHandler.clients) {
+        for (ClientHandler c : ClientHandler.getClients()) {
             if (c.getUserName().equals(ch.getUserName())) {
                 return false;
             }
         }
-        ClientHandler.clients.add(ch);
+        ClientHandler.getClients().add(ch);
         return true;
     }
 
     private void removeClient(Socket s) {
-        for (ClientHandler ch : ClientHandler.clients) {
+        for (ClientHandler ch : ClientHandler.getClients()) {
             if (ch.getSocket() == s) {
                 // we have found the correct client associated with this socket
-                ClientHandler.clients.remove(ch);
+                ClientHandler.getClients().remove(ch);
                 break;
             }
         }
@@ -63,7 +63,7 @@ public class ServerThread implements Runnable {
         socket.close();
         removeClient(socket);
         String serverResponse = "USERLIST#";
-        for (ClientHandler cs : ClientHandler.clients) {
+        for (ClientHandler cs : ClientHandler.getClients()) {
             serverResponse += cs.getUserName() + ",";
         }
         serverResponse = serverResponse.substring(0, serverResponse.length() - 1);
@@ -76,7 +76,7 @@ public class ServerThread implements Runnable {
 
     private void sendToAll(String message) {
 
-        for (ClientHandler ch : ClientHandler.clients) {
+        for (ClientHandler ch : ClientHandler.getClients()) {
             ch.send(message);
         }
     }
@@ -99,7 +99,7 @@ public class ServerThread implements Runnable {
             ClientHandler ch = new ClientHandler(socket, userName);
             if (addClient(ch)) {
                 serverResponse = "USERLIST#";
-                for (ClientHandler cs : ClientHandler.clients) {
+                for (ClientHandler cs : ClientHandler.getClients()) {
                     serverResponse += cs.getUserName() + ",";
                 }
                 serverResponse = serverResponse.substring(0, serverResponse.length() - 1);
@@ -161,7 +161,7 @@ public class ServerThread implements Runnable {
                 s = "MSG#";
 
                 String sender = null;
-                for (ClientHandler ch : ClientHandler.clients) {
+                for (ClientHandler ch : ClientHandler.getClients()) {
                     if (socket == ch.getSocket()) {
                         sender = ch.getUserName();
                         break;
@@ -173,7 +173,7 @@ public class ServerThread implements Runnable {
                 } else {
 
                     for (String user : users) {
-                        for (ClientHandler ch : ClientHandler.clients) {
+                        for (ClientHandler ch : ClientHandler.getClients()) {
 
                             if (ch.getUserName().equals(user)) {
 

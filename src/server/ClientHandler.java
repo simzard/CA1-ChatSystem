@@ -19,11 +19,16 @@ import java.util.logging.Logger;
  */
 public class ClientHandler {
     
-    static List<ClientHandler> clients = new ArrayList();
+    private static List<ClientHandler> getClients = new ArrayList();
     
     private String userName;
     private Socket socket;
     private PrintWriter out;
+    
+    public static List<ClientHandler> getClients() {
+        return getClients;
+    }
+    
     
     public Socket getSocket() {
         return socket;
