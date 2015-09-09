@@ -8,6 +8,8 @@ package server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +18,9 @@ import java.util.logging.Logger;
  * @author Simon, Afrooz and Ib
  */
 public class ClientHandler {
+    
+    static List<ClientHandler> clients = new ArrayList();
+    
     private String userName;
     private Socket socket;
     private PrintWriter out;
@@ -32,7 +37,8 @@ public class ClientHandler {
         return userName;
     }
     
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, String userName) {
+        this.userName = userName;
         this.socket = socket;
         try {
             out = new PrintWriter(socket.getOutputStream(), true);
