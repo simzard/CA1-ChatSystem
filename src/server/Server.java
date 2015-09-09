@@ -45,12 +45,44 @@ public class Server implements ServerInterface {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private boolean syntaxIsOK(String message) {
-        return false;
+     private boolean syntaxIsOK(String message) {
+        boolean boo = false;
+
+        String[] msg = message.split("#");
+        int msgLength = msg.length;
+
+        if (msgLength == 0) {
+            boo = false;
+        } else if (msgLength == 1 && "STOP".equals(msg[0])) {
+            boo = true;
+        } else if (msgLength == 2 && "USER".equals(msg[0]) && msg[1].length() >= 1) {
+            boo = true;
+        } else if (msgLength == 3 && "MSG".equals(msg[0]) && msg[1].length() >= 1 && msg[2].length() >= 1) {
+            boo = !(msg[1].contains(",") && msg[1].startsWith(",") || msg[1].endsWith(","));
+        }
+        return boo;
     }
 
-    private String processInput(String message) {
-        return null;
+     private String processInput(String message) { //ikke færdig endnu! 
+        String s = null;
+
+        String[] parts = message.split("#");
+
+        switch (parts[0]) {
+            case "USER":
+                
+                break;
+            case "MSG":
+                
+                break;
+            case "USERLIST":
+                s = parts[0] + "#" + parts[1];
+                break;
+            case "STOP":
+                return null;
+
+        }
+        return s;
     }
 
     public static void main(String[] args) throws IOException {
