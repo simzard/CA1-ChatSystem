@@ -20,8 +20,14 @@ import java.util.List;
 public class Server implements ServerInterface {
 
     
+    private static boolean running = true;
+    
     Socket socket;
 
+    public static boolean isRunning() {
+        return running;
+    }
+    
     public Server(Socket socket) {
         this.socket = socket;
     }
@@ -30,7 +36,7 @@ public class Server implements ServerInterface {
 
     @Override
     public void stopServer() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        running = false;
     }
 
      
@@ -51,7 +57,7 @@ public class Server implements ServerInterface {
 
         serverSocket.bind(new InetSocketAddress(ip, port));
 
-        while (true) {
+        while (Server.isRunning()) {
 
             ServerThread serverObject = new ServerThread(serverSocket.accept());
 

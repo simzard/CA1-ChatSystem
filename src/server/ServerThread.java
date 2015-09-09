@@ -106,7 +106,8 @@ public class ServerThread implements Runnable {
                 sendToAll(serverResponse);
 
                 try {
-                    while ((clientInput = dataInFromSocket.readLine()) != null
+                    while (Server.isRunning()
+                            && (clientInput = dataInFromSocket.readLine()) != null
                             && !clientInput.equals("STOP#")) {
 
                         if (syntaxIsOK(clientInput)) {
