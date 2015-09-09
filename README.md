@@ -1,2 +1,2 @@
 # CA1-ChatSystem
-Simon og Ib's Chat CA-1
+Afrooz's, Ib's and Simon's Chat CA-1
