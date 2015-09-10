@@ -10,10 +10,13 @@ import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
@@ -34,22 +37,44 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
     static StyledDocument doc;
 
+    static Style boldBlue;
     static Style normalBlack;
+    static Style italicPurple;
+    static Style boldBrown;
+    static Style boldBlack;
+    static Style gray;
+
+    static DefaultListModel listModel = new DefaultListModel();
 
     /**
      * Creates new form GUI
      */
     public GUI() {
         initComponents();
+        boldBlue = jTextPane1.addStyle("Im a bold blue Style", null);
         normalBlack = jTextPane1.addStyle("Im a normal black Style", null);
+        italicPurple = jTextPane1.addStyle("Im a italic purple Style", null);
+        boldBlack = jTextPane1.addStyle("Im a bold black Style", null);
+        gray = jTextPane1.addStyle("Im a grey Style", null);
 
         doc = jTextPane1.getStyledDocument();
+
+        StyleConstants.setForeground(boldBlue, Color.BLUE);
+        StyleConstants.setBold(boldBlue, true);
 
         StyleConstants.setForeground(normalBlack, Color.BLACK);
         StyleConstants.setItalic(normalBlack, true);
 
+        StyleConstants.setForeground(italicPurple, new Color(102, 0, 102));
+        StyleConstants.setBold(italicPurple, true);
+
+        StyleConstants.setForeground(boldBlack, Color.BLACK);
+        StyleConstants.setBold(boldBlack, true);
+
+        StyleConstants.setForeground(gray, Color.GRAY);
+
         jTextPane1.setEditable(false);
-        
+
         if (userName == null) {
 
             userName = JOptionPane.showInputDialog("Please enter your user name:");
@@ -59,7 +84,27 @@ public class GUI extends javax.swing.JFrame implements Observer {
         }
 
         theClient = new Client(ip, port, userName, this);
+        String responseText = "";
+        // try to get the next message from the server
+        // however we will only receive it if the username gets accepted
         
+
+        String tokens[] = responseText.split("#");
+
+        if (tokens[0].equals("USERLIST")) {
+            String userNames[] = tokens[1].split(",");
+
+            listModel.clear();
+
+            for (String userName : userNames) {
+                 // if the user is not known by the map of styles (with colors)
+                // add a style to the user
+
+                listModel.addElement(userName);
+            }
+
+        }
+
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 try {
@@ -96,11 +141,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
         jScrollPane1.setViewportView(jTextPane1);
 
-        jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
+        jList1.setModel(listModel);
         jScrollPane2.setViewportView(jList1);
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -157,7 +198,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane2)
                     .addComponent(jScrollPane1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -183,6 +224,42 @@ public class GUI extends javax.swing.JFrame implements Observer {
     private void send() {
         String theText = jTextField1.getText();
         theClient.send(theText);
+
+        String receivers = "ALL";
+
+        if (!theText.equals("")) {
+
+            List<String> selectedUsers = jList1.getSelectedValuesList();
+            // if none is selected - just assume we want to send the message to everybody
+            if (selectedUsers.isEmpty()) {
+                theClient.send("MSG#*#" + theText);
+            } else {
+                receivers = "";
+                String sendString = "MSG#";
+                for (String user : selectedUsers) {
+                    sendString += user + ",";
+
+                }
+                // get rid of the last ,
+                sendString = sendString.substring(0, sendString.length() - 1);
+                receivers = sendString.split("#")[1];
+                sendString = sendString + "#" + theText;
+
+                theClient.send(sendString);
+            }
+
+            // insert the user's message to his own window
+            try {
+                doc.insertString(doc.getLength(), "(" + userName, italicPurple);
+                doc.insertString(doc.getLength(), " to " + receivers, gray);
+                doc.insertString(doc.getLength(), "): ", italicPurple);
+                doc.insertString(doc.getLength(), theText + "\n", boldBlack);
+            } catch (BadLocationException e) {
+
+            }
+
+            jTextField1.setText("");
+        }
     }
 
     /**
@@ -275,11 +352,38 @@ public class GUI extends javax.swing.JFrame implements Observer {
     @Override
     public void update(Observable o, Object arg) {
 
-        try {
-            // user.get(tokens[1]) returns some random Style with a random color
-            doc.insertString(doc.getLength(), (String) arg + "\n", normalBlack);
+        String responseText = (String) arg;
+        String tokens[] = responseText.split("#");
 
-        } catch (BadLocationException e) {
+        String display = "";
+
+        if (tokens[0].equals("USERLIST")) {
+            String userNames[] = tokens[1].split(",");
+            listModel.clear();
+
+            for (String userName : userNames) {
+
+                listModel.addElement(userName);
+                // if the user is not known by the map of styles (with colors)
+                // add a style to the user
+//                if (!users.containsKey(userName)) {
+//                    users.put(userName, getStyleWithRandomColor());
+//                }
+            }
+
+        }
+        if (tokens[0].equals("MSG")) {
+
+            // we only want it displayed if it is not coming from ourselves!
+            if (!tokens[1].equals(userName)) {
+                try {
+                    // user.get(tokens[1]) returns some random Style with a random color
+                    doc.insertString(doc.getLength(), "(" + tokens[1] + "): ", normalBlack);
+                    doc.insertString(doc.getLength(), tokens[2] + "\n", normalBlack);
+                } catch (BadLocationException e) {
+                }
+            }
+
         }
 
     }

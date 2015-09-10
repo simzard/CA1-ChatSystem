@@ -1,10 +1,18 @@
-Sep 10, 2015 2:46:10 PM server.Server main
+Sep 10, 2015 3:34:50 PM server.Server main
 INFO: Server started at ip:localhost listening at port 9090
-Sep 10, 2015 2:46:19 PM server.Server main
+Sep 10, 2015 3:34:59 PM server.Server main
 INFO: New client connected
-Sep 10, 2015 2:46:19 PM server.ServerThread run
-INFO: ib entered the chat
-Sep 10, 2015 2:46:23 PM server.ServerThread run
-INFO: ib left the chat
-Sep 10, 2015 2:46:23 PM server.ServerThread close
+Sep 10, 2015 3:34:59 PM server.ServerThread run
+INFO: simon entered the chat
+Sep 10, 2015 3:35:12 PM server.Server main
+INFO: New client connected
+Sep 10, 2015 3:35:12 PM server.ServerThread run
+INFO: agh entered the chat
+Sep 10, 2015 3:36:18 PM server.ServerThread run
+INFO: simon left the chat
+Sep 10, 2015 3:36:18 PM server.ServerThread close
+INFO: Closing client socket connection...
+Sep 10, 2015 3:36:20 PM server.ServerThread run
+INFO: agh left the chat
+Sep 10, 2015 3:36:20 PM server.ServerThread close
 INFO: Closing client socket connection...
