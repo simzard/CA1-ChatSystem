@@ -7,6 +7,7 @@ package gui;
 
 import client.Client;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -75,52 +76,65 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
         jTextPane1.setEditable(false);
 
+        boolean connectionOK = false;
+
         if (userName == null) {
 
             userName = JOptionPane.showInputDialog("Please enter your user name:");
             if (userName == null) {
                 System.exit(1);
             }
-        }
-        
-        if (ip == null) {
 
-            ip = JOptionPane.showInputDialog("Please enter the server's ip address:");
+        }
+
+        theClient = new Client();
+        String tmpPort = null;
+        do {
             if (ip == null) {
-                System.exit(1);
-            }
-        }
-        
-        if (port == -1) {
-            String tmpPort = JOptionPane.showInputDialog("Please enter the server's port:");
-            port = Integer.parseInt(tmpPort);
-            if (port == -1) {
-                System.exit(1);
-            }
-        }
-        
 
-        theClient = new Client(ip, port, userName, this);
+                ip = JOptionPane.showInputDialog("Please enter the server's ip address:");
+
+
+            }
+
+            if (port == -1) {
+                tmpPort = JOptionPane.showInputDialog("Please enter the server's port:");
+              
+                try {
+                    port = Integer.parseInt(tmpPort);
+
+                } catch (NumberFormatException e) {
+                    port = -1;
+                }
+            }
+
+            try {
+                theClient.connect(ip, port);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Bad host and / or port!");
+                ip = null;
+                port = -1;
+                tmpPort = null;
+                
+                
+
+            }
+            
+            if (port != -1 && ip != null && tmpPort != null) {
+                break;
+                
+            }
+        } while (true);
+
+        theClient.addObserver(this);
+
+        theClient.startNotifier();
+        jLabel4.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        jLabel4.setText(userName);
+        theClient.send("USER#" + userName);
         String responseText = "";
-        // try to get the next message from the server
-        // however we will only receive it if the username gets accepted
-        
 
         String tokens[] = responseText.split("#");
-
-        if (tokens[0].equals("USERLIST")) {
-            String userNames[] = tokens[1].split(",");
-
-            listModel.clear();
-
-            for (String userName : userNames) {
-                 // if the user is not known by the map of styles (with colors)
-                // add a style to the userftp://ftp.simonsteinaa.dk/public_html/
-
-                listModel.addElement(userName);
-            }
-
-        }
 
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -153,6 +167,9 @@ public class GUI extends javax.swing.JFrame implements Observer {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -180,6 +197,10 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
         jLabel3.setText("User logged in");
 
+        jLabel5.setText("Select/Deselect users with CTRL+click (default is send to ALL)");
+
+        jLabel6.setText("Name:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -187,17 +208,27 @@ public class GUI extends javax.swing.JFrame implements Observer {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(66, 66, 66)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1)))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(230, 230, 230)
                         .addComponent(jLabel1))
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel6)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
+                                    .addComponent(jScrollPane1)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(25, 25, 25)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(120, 120, 120)
-                        .addComponent(jLabel2)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE)
+                        .addComponent(jLabel2))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel5)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -207,15 +238,21 @@ public class GUI extends javax.swing.JFrame implements Observer {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(57, 57, 57)
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jLabel3))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane1))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 222, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -359,6 +396,9 @@ public class GUI extends javax.swing.JFrame implements Observer {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JList jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -381,11 +421,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
             for (String userName : userNames) {
 
                 listModel.addElement(userName);
-                // if the user is not known by the map of styles (with colors)
-                // add a style to the user
-//                if (!users.containsKey(userName)) {
-//                    users.put(userName, getStyleWithRandomColor());
-//                }
+
             }
 
         }
@@ -394,7 +430,6 @@ public class GUI extends javax.swing.JFrame implements Observer {
             // we only want it displayed if it is not coming from ourselves!
             if (!tokens[1].equals(userName)) {
                 try {
-                    // user.get(tokens[1]) returns some random Style with a random color
                     doc.insertString(doc.getLength(), "(" + tokens[1] + "): ", normalBlack);
                     doc.insertString(doc.getLength(), tokens[2] + "\n", normalBlack);
                 } catch (BadLocationException e) {

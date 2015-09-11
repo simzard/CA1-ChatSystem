@@ -24,52 +24,37 @@ import javax.swing.text.BadLocationException;
  */
 public class Client extends Observable implements Observer {
 
-    Socket socket;
-    private int port;
-    String userName = null;
-    private InetAddress serverAddress;
     private Scanner input;
     private PrintWriter output;
-    private boolean GUI = false;
 
     boolean running = true;
+
+    private Notifier notifier;
+    private Thread notifierThread;
+
+    public void setRunning(boolean r) {
+        running = r;
+    }
+
+    public Client() {
+        notifier = new Notifier();
+        notifierThread = new Thread(notifier);
+    }
 
     public Client(String ip, int port, String userName, Observer observer) {
         if (observer != null) {
             this.addObserver(observer);
-            GUI = true;
         }
-        this.userName = userName;
-        try {
-            connect(ip, port);
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        } 
 
-        //System.out.println("Sending 'USER#" + userName + "'");
-        send("USER#" + userName);
+    }
 
-        Notifier notifier = new Notifier();
-        notifier.addObserver(this);
-        Thread notifierThread = new Thread(notifier);
-
+    public void startNotifier() {
         notifierThread.start();
-        if (!GUI) {
-            Scanner userInput = new Scanner(System.in);
-            String sendString = null;
-            do {
-                sendString = userInput.nextLine();
-                output.println(sendString);
-            } while (!sendString.equals("STOP#"));
-
-            running = false;
-        }
     }
 
     public void connect(String address, int port) throws UnknownHostException, IOException {
-        this.port = port;
-        serverAddress = InetAddress.getByName(address);
-        socket = new Socket(serverAddress, port);
+        InetAddress serverAddress = InetAddress.getByName(address);
+        Socket socket = new Socket(serverAddress, port);
         input = new Scanner(socket.getInputStream());
         output = new PrintWriter(socket.getOutputStream(), true);  //Set to true, to get auto flush behaviour
     }
@@ -108,34 +93,48 @@ public class Client extends Observable implements Observer {
                 break;
         }
 
-        Client commandLineClient = new Client(ip, port, userName, null);
+        Client client = new Client();
+
+        try {
+            client.connect(ip, port);
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        client.addObserver(client);
+        client.startNotifier();
+        client.send("USER#" + userName);
+
+        Scanner userInput = new Scanner(System.in);
+        String sendString = null;
+        do {
+            sendString = userInput.nextLine();
+            client.send(sendString);
+        } while (!sendString.equals("STOP#"));
+
+        client.setRunning(false);
+
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        if (GUI) {
+        String responseText = (String) arg;
+        String tokens[] = responseText.split("#");
 
-            setChanged();
-            notifyObservers(arg);
-        } else {
-            String responseText = (String) arg;
-            String tokens[] = responseText.split("#");
+        String display = "";
 
-            String display = "";
+        if (tokens[0].equals("USERLIST")) {
+            System.out.println(responseText);
 
-            if (tokens[0].equals("USERLIST")) {
-                System.out.println(responseText);
+        }
 
-            }
+        if (tokens[0].equals("MSG")) {
+            System.out.println(responseText);
 
-            if (tokens[0].equals("MSG")) {
-                System.out.println(responseText);
-
-            }
         }
     }
 
-    private class Notifier extends Observable implements Runnable {
+    private class Notifier implements Runnable {
 
         @Override
         public void run() {
