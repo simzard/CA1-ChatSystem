@@ -79,9 +79,26 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
             userName = JOptionPane.showInputDialog("Please enter your user name:");
             if (userName == null) {
-                System.exit(0);
+                System.exit(1);
             }
         }
+        
+        if (ip == null) {
+
+            ip = JOptionPane.showInputDialog("Please enter the server's ip address:");
+            if (ip == null) {
+                System.exit(1);
+            }
+        }
+        
+        if (port == -1) {
+            String tmpPort = JOptionPane.showInputDialog("Please enter the server's port:");
+            port = Integer.parseInt(tmpPort);
+            if (port == -1) {
+                System.exit(1);
+            }
+        }
+        
 
         theClient = new Client(ip, port, userName, this);
         String responseText = "";
@@ -98,7 +115,7 @@ public class GUI extends javax.swing.JFrame implements Observer {
 
             for (String userName : userNames) {
                  // if the user is not known by the map of styles (with colors)
-                // add a style to the user
+                // add a style to the userftp://ftp.simonsteinaa.dk/public_html/
 
                 listModel.addElement(userName);
             }
@@ -316,8 +333,8 @@ public class GUI extends javax.swing.JFrame implements Observer {
                     .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        port = 9090;
-        ip = "localhost";
+        port = -1;
+        ip = null;
         userName = null;
         switch (args.length) {
             case 3:

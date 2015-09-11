@@ -44,7 +44,7 @@ public class Client extends Observable implements Observer {
             connect(ip, port);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
 
         //System.out.println("Sending 'USER#" + userName + "'");
         send("USER#" + userName);
