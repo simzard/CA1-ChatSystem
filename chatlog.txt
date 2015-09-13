@@ -1,18 +1,22 @@
-Sep 11, 2015 8:31:25 PM server.Server runServer
+Sep 13, 2015 9:10:52 AM server.Server runServer
 INFO: Server started at ip:localhost listening at port 9090
-Sep 11, 2015 8:34:15 PM server.Server runServer
+Sep 13, 2015 9:10:53 AM server.Server runServer
 INFO: New client connected
-Sep 11, 2015 8:34:15 PM server.ServerThread run
+Sep 13, 2015 9:10:53 AM server.ServerThread run
 INFO: simon entered the chat
-Sep 11, 2015 8:34:32 PM server.ServerThread run
-INFO: simon left the chat
-Sep 11, 2015 8:34:32 PM server.ServerThread close
-INFO: Closing client socket connection...
-Sep 11, 2015 8:46:14 PM server.Server runServer
+Sep 13, 2015 9:10:53 AM server.Server runServer
 INFO: New client connected
-Sep 11, 2015 8:46:14 PM server.ServerThread run
-INFO: simon entered the chat
-Sep 11, 2015 8:46:18 PM server.ServerThread run
-INFO: simon left the chat
-Sep 11, 2015 8:46:18 PM server.ServerThread close
+Sep 13, 2015 9:10:53 AM server.ServerThread run
+INFO: afrooz entered the chat
+Sep 13, 2015 9:10:54 AM server.Server runServer
+INFO: New client connected
+Sep 13, 2015 9:10:54 AM server.ServerThread run
+INFO: ib entered the chat
+Sep 13, 2015 9:10:54 AM server.ServerThread run
+INFO: ib left the chat
+Sep 13, 2015 9:10:54 AM server.Server runServer
+INFO: New client connected
+Sep 13, 2015 9:10:54 AM server.ServerThread close
 INFO: Closing client socket connection...
+Sep 13, 2015 9:10:54 AM server.Server stopServer
+INFO: Stopping server...
